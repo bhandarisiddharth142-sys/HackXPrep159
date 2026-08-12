@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumina Notes — Modern Glassmorphic Workspace</title>
+  <meta name="description"
+    content="A sleek, modern, glassmorphic note-taking web app with Markdown support, tags, search, and themes.">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Prism.js Syntax Highlighting CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+
+<body>
+
+  <div class="app-container" id="app">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">L</div>
+        <div class="brand-title">Lumina Notes</div>
+      </div>
+
+      <button class="btn-new-note" id="btn-new-note">
+        <i data-lucide="plus-circle"></i>
+        <span>New Note</span>
+      </button>
+
+      <!-- Main Categories -->
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <ul class="nav-list">
+          <li class="nav-item active" data-filter-type="all">
+            <div class="nav-item-left">
+              <i data-lucide="file-text"></i>
+              <span>All Notes</span>
+            </div>
+            <span class="nav-badge" id="count-all">0</span>
+          </li>
+          <li class="nav-item" data-filter-type="pinned">
+            <div class="nav-item-left">
+              <i data-lucide="pin"></i>
+              <span>Pinned</span>
+            </div>
+            <span class="nav-badge" id="count-pinned">0</span>
+          </li>
+          <li class="nav-item" data-filter-type="favorites">
+            <div class="nav-item-left">
+              <i data-lucide="star"></i>
+              <span>Favorites</span>
+            </div>
+            <span class="nav-badge" id="count-favorites">0</span>
+          </li>
+          <li class="nav-item" data-filter-type="trash">
+            <div class="nav-item-left">
+              <i data-lucide="trash-2"></i>
+              <span>Trash</span>
+            </div>
+            <span class="nav-badge" id="count-trash">0</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Categories / Folders -->
+      <div class="nav-group">
+        <div class="nav-label">Folders</div>
+        <ul class="nav-list" id="category-list">
+          <li class="nav-item" data-filter-type="category" data-category="Personal">
+            <div class="nav-item-left"><i data-lucide="folder"></i><span>Personal</span></div>
+          </li>
+          <li class="nav-item" data-filter-type="category" data-category="Work">
+            <div class="nav-item-left"><i data-lucide="folder"></i><span>Work</span></div>
+          </li>
+          <li class="nav-item" data-filter-type="category" data-category="Ideas">
+            <div class="nav-item-left"><i data-lucide="folder"></i><span>Ideas</span></div>
+          </li>
+          <li class="nav-item" data-filter-type="category" data-category="Code">
+            <div class="nav-item-left"><i data-lucide="folder"></i><span>Code</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tags Section -->
+      <div class="nav-group">
+        <div class="nav-label">Tags</div>
+        <div class="tags-scroll-container">
+          <ul class="nav-list" id="tag-list">
+            <!-- Dynamic tags will load here -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <button class="theme-toggle-btn" id="theme-toggle" title="Switch Theme (Dark / Light / OLED)">
+          <i data-lucide="moon" id="theme-icon"></i>
+        </button>
+        <button class="stats-btn" id="open-stats-btn" title="View Statistics">
+          <i data-lucide="bar-chart-2"></i>
+        </button>
+        <button class="stats-btn" id="export-backup-btn" title="Export Backup JSON">
+          <i data-lucide="download"></i>
+        </button>
+        <button class="stats-btn" id="import-backup-btn" title="Import Backup JSON">
+          <i data-lucide="upload"></i>
+        </button>
+        <input type="file" id="import-file-input" accept=".json" style="display: none;">
+      </div>
+    </aside>
+
+    <!-- Note List Panel -->
+    <section class="note-list-panel">
+      <div class="panel-header">
+        <div class="search-box">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" class="search-input" id="search-input" placeholder="Search notes...">
+        </div>
+        <div class="filter-bar">
+          <span id="current-filter-title">All Notes</span>
+          <select class="sort-select" id="sort-select">
+            <option value="updated">Recently Updated</option>
+            <option value="created">Newest Created</option>
+            <option value="title">Title (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="notes-scroll" id="notes-list-container">
+        <!-- Dynamic note cards rendered here -->
+      </div>
+    </section>
+
+    <!-- Main Note Workspace -->
+    <main class="main-workspace" id="main-workspace">
+
+      <!-- Workspace Top Header -->
+      <header class="workspace-header">
+        <button class="mobile-menu-btn" id="mobile-toggle-btn">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <input type="text" class="note-title-input" id="note-title-input" placeholder="Untitled Note...">
+
+        <div class="header-controls">
+          <!-- View Modes -->
+          <div class="view-mode-toggle">
+            <button class="mode-btn active" data-mode="split" id="btn-mode-split">
+              <i data-lucide="columns"></i> <span>Split</span>
+            </button>
+            <button class="mode-btn" data-mode="edit" id="btn-mode-edit">
+              <i data-lucide="edit-3"></i> <span>Edit</span>
+            </button>
+            <button class="mode-btn" data-mode="preview" id="btn-mode-preview">
+              <i data-lucide="eye"></i> <span>Preview</span>
+            </button>
+          </div>
+
+          <button class="action-btn" id="btn-favorite" title="Star Favorite">
+            <i data-lucide="star"></i>
+          </button>
+          <button class="action-btn" id="btn-pin" title="Pin to top">
+            <i data-lucide="pin"></i>
+          </button>
+          <button class="action-btn" id="btn-export-note" title="Export Note">
+            <i data-lucide="file-output"></i>
+          </button>
+          <button class="action-btn danger" id="btn-delete-note" title="Delete Note">
+            <i data-lucide="trash"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Workspace Meta Sub-Bar -->
+      <div class="workspace-meta-bar">
+        <div class="meta-left">
+          <!-- Category Select -->
+          <label>Category:
+            <select class="category-select" id="note-category-select">
+              <option value="Personal">Personal</option>
+              <option value="Work">Work</option>
+              <option value="Ideas">Ideas</option>
+              <option value="Code">Code</option>
+            </select>
+          </label>
+
+          <!-- Color Swatches -->
+          <div class="color-swatches">
+            <div class="color-swatch selected" data-color="#6366f1" style="background-color: #6366f1;" title="Indigo">
+            </div>
+            <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Emerald"></div>
+            <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
+            <div class="color-swatch" data-color="#ec4899" style="background-color: #ec4899;" title="Rose"></div>
+            <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
+          </div>
+
+          <!-- Tags Wrapper -->
+          <div class="tags-input-wrapper" id="note-tags-wrapper">
+            <!-- Dynamic tags -->
+            <input type="text" class="add-tag-input" id="add-tag-input" placeholder="+ Add Tag">
+          </div>
+        </div>
+
+        <div class="meta-right">
+          <div class="save-status">
+            <div class="save-indicator" id="save-indicator"></div>
+            <span id="save-status-text">Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formatting Toolbar -->
+      <div class="editor-toolbar" id="editor-toolbar">
+        <button class="toolbar-btn" data-format="bold" title="Bold (Ctrl+B)"><i data-lucide="bold"></i></button>
+        <button class="toolbar-btn" data-format="italic" title="Italic (Ctrl+I)"><i data-lucide="italic"></i></button>
+        <button class="toolbar-btn" data-format="strikethrough" title="Strikethrough"><i
+            data-lucide="strikethrough"></i></button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" data-format="h1" title="Heading 1"><i data-lucide="heading-1"></i></button>
+        <button class="toolbar-btn" data-format="h2" title="Heading 2"><i data-lucide="heading-2"></i></button>
+        <button class="toolbar-btn" data-format="h3" title="Heading 3"><i data-lucide="heading-3"></i></button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" data-format="ul" title="Bullet List"><i data-lucide="list"></i></button>
+        <button class="toolbar-btn" data-format="ol" title="Numbered List"><i data-lucide="list-ordered"></i></button>
+        <button class="toolbar-btn" data-format="task" title="Checklist"><i data-lucide="check-square"></i></button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" data-format="code" title="Code Block"><i data-lucide="code"></i></button>
+        <button class="toolbar-btn" data-format="quote" title="Quote"><i data-lucide="quote"></i></button>
+        <button class="toolbar-btn" data-format="table" title="Table"><i data-lucide="table"></i></button>
+        <button class="toolbar-btn" data-format="hr" title="Divider Line"><i data-lucide="minus"></i></button>
+      </div>
+
+      <!-- Editor Container -->
+      <div class="editor-container mode-split" id="editor-container">
+        <div class="editor-pane">
+          <textarea class="editor-textarea" id="note-editor" placeholder="Write markdown note here..."></textarea>
+        </div>
+        <div class="preview-pane">
+          <div class="markdown-body" id="note-preview"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Statistics Modal -->
+  <div class="modal-overlay" id="stats-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Workspace Statistics</h3>
+        <button class="close-btn" id="close-stats-btn">&times;</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total-notes">0</div>
+          <div class="stat-label">Total Notes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total-words">0</div>
+          <div class="stat-label">Total Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total-tags">0</div>
+          <div class="stat-label">Unique Tags</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-reading-time">0 min</div>
+          <div class="stat-label">Est. Reading Time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <!-- Sample Notes Data -->
+  <script src="sample-notes.js"></script>
+  <!-- Marked.js Markdown Parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- DOMPurify HTML Sanitizer -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <!-- Prism.js Syntax Highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+
+</body>
+
+</html>
